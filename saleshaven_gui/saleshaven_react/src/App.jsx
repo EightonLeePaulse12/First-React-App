@@ -1,38 +1,48 @@
+import { useState, useEffect } from "react";
 import "./App.css";
+import SearchIcon from "../src/search.svg";
+import MovieCard from "./MovieCard";
 
-const Person = () => {
-  return (
-    <>
-      <h1>Name: tara</h1>
-      <h1>Surname: Snell</h1>
-      <h1>Age: 28</h1>
-    </>
-  );
-};
+const url = "http://www.omdbapi.com?apikey=bd615ac1";
 
 const App = () => {
-  const names = ["Jadee", "Ethan", "tara"];
-  const name = Math.floor(Math.random() * names.length);
+  const [movies, setMovies] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('')
 
-  const nameShowing = true;
+  const searchMov = async (title) => {
+    const resp = await fetch(`${url}&s=${title}`);
+    const data = await resp.json();
+    setMovies(data.Search);
+  };
+
+  useEffect(() => {
+    searchMov("Batman");
+  }, []);
+
   return (
-    <div className="App">
-      {nameShowing ? (
-        <>
-          <h1>Hello {names[name]}</h1>
-          <h2>Welcome to my first React App</h2>
-          <Person />
-          <Person/>
-          <Person/>
-          <Person/>
-          <Person/>
-          <Person/>
-        </>
+    <div className="app">
+      <h1>MovieLand</h1>
+
+      <div className="search">
+        <input
+          type="text"
+          placeholder="Search For Movies"
+          value={searchTerm}
+          onChange={(e) => {setSearchTerm(e.target.value)}}
+        />
+        <img src={SearchIcon} alt="search" onClick={() => searchMov(searchTerm)} />
+      </div>
+
+      {movies?.length > 0 ? (
+        <div className="container">
+          {movies.map((e) => (
+            <MovieCard key={e.imdbID} movie={e} />
+          ))}
+        </div>
       ) : (
-        <>
-          <h1>Hello person</h1>
-          <h2>Who are you?</h2>
-        </>
+        <div className="empty">
+          <h2>No movies found</h2>
+        </div>
       )}
     </div>
   );
